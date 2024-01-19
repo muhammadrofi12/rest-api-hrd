@@ -20,16 +20,19 @@ router.get("/", (req, res) => {
   res.send("Hello HRD API Express");
 });
 
-// Rute login
+// Membuat routing login
 router.post('/login', async (req, res) => {
-  // CPeriksa nama pengguna dan kata sandi, hasilkan JWT
+  // Mendapatkan data penggunaan dari body permintaan
   const { username, password } = req.body;
 
-  // Gantilah ini dengan logika autentikasi aktual Anda
+  // Memeriksa nama pengguna dan kata sandi, kemudian menghasilkan token JWT jika valid
   if (username === 'Rofi' && password === '12345') {
       const token = jwt.sign({ username }, process.env.JWT_SECRET, { expiresIn: '1h' });
+
+      // Mengirimkan token JWT sebagai respons jika autentikasi berhasil
       res.json({ token });
   } else {
+    // Mengirimkan respons status 401 jika autentikasi gagal
       res.status(401).json({ message: 'Autentikasi gagal' });
   }
 });
