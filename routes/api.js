@@ -1,8 +1,14 @@
 // import EmployeeController
 const EmployeeController = require("../controllers/EmployeeController");
 
+// import authMiddleware
+const { authenticateToken } = require('../middleware/authMiddleware');
+
 // import express
 const express = require("express");
+
+// import jsonwebtoken
+const jwt = require('jsonwebtoken');
 
 // membuat object router
 const router = express.Router();
@@ -14,19 +20,33 @@ router.get("/", (req, res) => {
   res.send("Hello HRD API Express");
 });
 
+// Rute login
+router.post('/login', async (req, res) => {
+  // CPeriksa nama pengguna dan kata sandi, hasilkan JWT
+  const { username, password } = req.body;
+
+  // Gantilah ini dengan logika autentikasi aktual Anda
+  if (username === 'Rofi' && password === '12345') {
+      const token = jwt.sign({ username }, process.env.JWT_SECRET, { expiresIn: '1h' });
+      res.json({ token });
+  } else {
+      res.status(401).json({ message: 'Autentikasi gagal' });
+  }
+});
+
 // Membuat routing employee
-router.get('/employees', EmployeeController.index);
-router.post('/employees', EmployeeController.create);
-router.put('/employees/:id', EmployeeController.update);
-router.delete('/employees/:id', EmployeeController.destroy);
+router.get('/employees', authenticateToken, EmployeeController.index);
+router.post('/employees', authenticateToken, EmployeeController.create);
+router.put('/employees/:id', authenticateToken, EmployeeController.update);
+router.delete('/employees/:id', authenticateToken, EmployeeController.destroy);
 router.get('/employees/:id', EmployeeController.find);
 router.get('/employees/search/:name', EmployeeController.search);
 // get karyawan aktif
-router.get('/employees/status/active', (req, res) => EmployeeController.findByStatus(req, res, 'active'));
+router.get('/employees/status/active', authenticateToken, (req, res) => EmployeeController.findByStatus(req, res, 'active'));
 // get karyawan tidak aktif
-router.get('/employees/status/inactive', (req, res) => EmployeeController.findByStatus(req, res, 'inactive'));
+router.get('/employees/status/inactive', authenticateToken, (req, res) => EmployeeController.findByStatus(req, res, 'inactive'));
 // get karyawan yang dihentikan
-router.get('/employees/status/terminated', (req, res) => EmployeeController.findByStatus(req, res, 'terminated'));
+router.get('/employees/status/terminated', authenticateToken, (req, res) => EmployeeController.findByStatus(req, res, 'terminated'));
 
 // export router
 module.exports = router;
